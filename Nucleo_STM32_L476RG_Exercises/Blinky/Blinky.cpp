@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 // Location of LED PIN: PA5
 // Port: A
 // Pin:  5
@@ -43,18 +45,37 @@
 #define PIN5					(1U<<5)
 #define LED_PIN					PIN5
 
+typedef struct{
+	volatile uint32_t MODER;
+	volatile uint32_t TEMP[4];  // PLACE HOLDER FOR REGISTERS
+	volatile uint32_t ODR;
+
+}GPIO_TPYEDEF;
+
+typedef struct{
+	volatile uint32_t TEMP[19];  // PLACE HOLDER FOR REGISTERS
+	volatile uint32_t AHB2ENR;
+
+}RCC_TYPEDEF;
+
+#define RCC						((RCC_TYPEDEF*) RCC_BASE)
+#define GPIOA					((GPIO_TPYEDEF*) GPIOA_BASE)
 
 int main(void){
 
 	/*1. Enable clock access to GPIOA*/
-	RCC_AHB2EN_R |= GPIOAEN;
+	//RCC_AHB2EN_R |= GPIOAEN;  //w/out struct
+	RCC->AHB2ENR |= GPIOAEN;
 
 	/*1. Set PA5 to Output Pin*/
-	GPIO_MODE_R |= (1U<<10);
-	GPIO_MODE_R &= ~(1U<<11);
+	//GPIO_MODE_R |= (1U<<10); //w/out struct
+	//GPIO_MODE_R &= ~(1U<<11); //w/out struct
+	GPIOA->MODER |= (1U<<10);
+	GPIOA->MODER &= ~(1U<<11);
 
 	while(1){
-		GPIOA_ODR ^= LED_PIN;
+		//GPIOA_ODR ^= LED_PIN;
+		GPIOA->ODR  ^= LED_PIN;
 		for(int i{0}; i<100000;i++);
 	}
 
