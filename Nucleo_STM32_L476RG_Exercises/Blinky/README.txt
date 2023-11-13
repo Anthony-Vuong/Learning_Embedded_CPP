@@ -13,3 +13,8 @@ further reduced and much more readable.
 Blinky_4 contains the source code to blink an LED(LD2) on the Nucleo STM32lg476rg board.
 This time we are the BSRR to turn the LED on and off through BIT SET RESET REGISTER.
 We write a 1 to the BIT-21 which contains the the reset bit for Port 5.
+
+Blinky_5 contains the source code to blink an LED(LD2) on the Nucleo STM32lg476rg board.
+In this version we use user button on Port C Pin 13 to control our LED on Port A Pin 5.
+We used IDR to read the current vaLue when push button(default high=1) is pressed(0) and
+not pressed(1).
