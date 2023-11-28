@@ -24,7 +24,7 @@
 #define D4_OUT				(1U<<0)
 
 
-void init_cmd_gpio_pins(){
+void init_lcd_gpio_pins(){
 
 	// Enable clock access for GPIOC
 	RCC->AHB2ENR |= GPIOC_EN;
@@ -33,7 +33,7 @@ void init_cmd_gpio_pins(){
 	GPIOC->MODER |= GPIO_DATA_OUT_L;
 	GPIOC->MODER &= ~(GPIO_DATA_OUT_H);
 
-	// Setup STATE pins as output PA 13/14/15
+	// Setup STATE pins as output PC 5/6/7
 	GPIOC->MODER &= ~(STATE_MODE_H);
 	GPIOC->MODER |= (STATE_MODE_L);
 
@@ -42,57 +42,61 @@ void init_cmd_gpio_pins(){
 
 void send_command(uint8_t cmd){
 
-	// Take top 4 bits and write to the DR data register
-	GPIOC->ODR |= D4_OUT & ((cmd>>4) & 1);
-	GPIOC->ODR |= D5_OUT & (1<<((cmd>>5) & 1));
-	GPIOC->ODR |= D6_OUT & (2<<((cmd>>6) & 1));
-	GPIOC->ODR |= D7_OUT & (3<<((cmd>>7) & 1));
+	// Take top 4 bits and write to the command register
+	GPIOC->ODR = ((cmd >> 4) & 0x0F);
+
+	GPIOC->ODR &= ~(RS_PIN | RW_PIN);
+	// Enable chip signal R or W
+	GPIOC->ODR |= EN_PIN;
+	systick_ms_delay(1);
+	GPIOC->ODR &= ~(EN_PIN);
+
+	systick_ms_delay(10);
+
+	// Take bottom 4 bits and write to the command register
+	GPIOC->ODR = cmd & 0x0F;
 
 	// Enable chip signal R or W
 	GPIOC->ODR |= EN_PIN;
-	systick_delay(5);
+	systick_ms_delay(1);
 	GPIOC->ODR &= ~(EN_PIN);
-	systick_delay(5);
 
 	GPIOC->ODR = 0;
-
-	// Take bottom 4 bits and write to the DR data register
-	GPIOC->ODR |= D4_OUT & (cmd & 1);
-	GPIOC->ODR |= D5_OUT & (1<<((cmd>>1) & 1));
-	GPIOC->ODR |= D6_OUT & (2<<((cmd>>2) & 1));
-	GPIOC->ODR |= D7_OUT & (3<<((cmd>>3) & 1));
-
-	// Enable chip signal R or W
-	GPIOC->ODR |= EN_PIN;
-	systick_delay(5);
-	GPIOC->ODR &= ~(EN_PIN);
-	systick_delay(5);
 
 }
 
 void init_lcd(){
-	// Instructions say 15ms but 30ms to make sure
-	systick_delay(30);
-	send_command(0x30);
-	systick_delay(10);
-	send_command(0x30);
-	systick_delay(10);
-	send_command(0x30);
-	systick_delay(10);
 
-	send_command(0x20);		// Function set - set interface 4 bits long
+	systick_ms_delay(100);
+	send_command(0x30);
+	systick_ms_delay(5);
+	send_command(0x30);
+	systick_us_delay(100);
+	send_command(0x30);
+	systick_us_delay(100);
+	send_command(0x20);
+	systick_us_delay(100);
 
-	send_command(0x28);		// Function set -
-	send_command(0x08);
+
+	send_command(0x28);
+	systick_us_delay(55);
+	send_command(0x0E);
+	systick_us_delay(55);
 	send_command(0x01);
+	systick_ms_delay(5);
 	send_command(0x06);
-	send_command(0x0f);
+	systick_us_delay(55);
+	send_command(0x0F);
+	systick_ms_delay(1000);
+
+
+	send_command(0xC0);
 }
 
 
 int main(){
 
-	init_cmd_gpio_pins();
+	init_lcd_gpio_pins();
 
 	init_lcd();
 
