@@ -9,6 +9,7 @@
 #define ADC_DEEPPWD			(1U<<29)
 #define ADC_ADDIS			(1U<<1)
 #define ADC_CNFG_CONT		(1U<<13)
+#define ADC_CNFG_DISCEN		(1U<<16)
 
 #define ADC_CH1 			(1U<<6) | (1U<<9)
 #define ADC_LENGTH 			(1U<<0)
@@ -40,7 +41,10 @@ void pc1_adc_init(){
 	ADC123_COMMON->CCR |= 1U<<17;
 
 	/*Single Mode - Not continuous*/
-	ADC1->CFGR &= ~(ADC_CNFG_CONT);
+	//ADC1->CFGR &= ~(ADC_CNFG_CONT);
+	/*Continuous Mode - Not single*/
+	ADC1->CFGR &= ~(ADC_CNFG_DISCEN);
+	ADC1->CFGR |= ADC_CNFG_CONT;
 
 	/*Set sequence length to 0*/
 	ADC1->SQR1 &= ~(ADC_LENGTH);
@@ -74,6 +78,9 @@ void start_conversion(){
 uint32_t adc_read(){
 
 	while(!(ADC1->ISR & ADC_EOC)) {}
+
+	// Comment out to run single conversion
+	ADC1->ISR |= ADC_EOC;
 
 	return (ADC1->DR);
 }
