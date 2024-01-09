@@ -3,7 +3,7 @@
 #include "ADC.h"
 #include "UART.h"
 
-
+static void adc_callback();
 int sensor_value;
 
 int main(){
@@ -13,10 +13,24 @@ int main(){
 	start_conversion();
 
 	while(1){
-		sensor_value = adc_read();
-		printf("SV: %d\n\r", sensor_value);
+
 	}
 
 	return 0;
 }
 
+static void adc_callback(){
+	sensor_value = ADC1->DR;
+	printf("SV: %d\n\r", sensor_value);
+
+}
+
+extern "C" {
+void ADC1_2_IRQHandler(){
+	if(ADC1->ISR & ADC_EOC){
+		ADC1->ISR &= ~(ADC_EOC);
+		adc_callback();
+	}
+
+}
+}
