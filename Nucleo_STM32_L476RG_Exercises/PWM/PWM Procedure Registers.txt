@@ -1,0 +1,41 @@
+**All information found in REFERENCE MANUAL p. 937/938/939
+
+TIMx_ARR - timer auto-reload register: determines frequency
+TIMx_CCRx - timer capture compare reg: determines duty cycle
+TIMx_CCMRx - timer capture compare mode reg
+	-> OCxM: 0110 for PWM Mode1 OR 0111 for  PWM Mode2
+	-> OCxPE: preload enable
+	-> CC1S: Note: CC1S bits are writable only when the channel 
+	   is OFF (CC1E = 0 in TIMx_CCER).
+TIMx_CR1: counter register: 
+	-> ARPE(auto-reload preload enable) bit
+	-> CMS
+	-> DIR: low is upcounting mode
+TIMx_EGR: UG bit: init registers
+TIMx_CCER:
+	-> CCxP: output polarity: active high or low
+	-> CCxNE
+	-> CCxE
+TIMx_BDTR: 
+	-> MOE:
+	-> OSSI
+	-> OSSR
+OCx_REF reload event flag
+	-> TIMx_CNT < TIMx_CCRx: flag is high 
+	-> TIMx_CNT >= TIMx_CCRx: flag is low
+
+Procedure
+1. Select the counter clock (internal, external, prescaler).
+2. Write the desired data in the TIMx_ARR and TIMx_CCRx registers.
+3. Set the CCxIE bit if an interrupt request is to be generated.
+4. Select the output mode. For example:
+	– Write OCxM = 0011 to toggle OCx output pin when CNT matches CCRx
+	– Write OCxPE = 0 to disable preload register
+	– Write CCxP = 0 to select active high polarity
+	– Write CCxE = 1 to enable the output
+5. Enable the counter by setting the CEN bit in the TIMx_CR1 register.
+
+
+PA8 - TIM1_CH1: AF1
+PA9 - TIM1_CH2: AF1
+TIMER1 APB2
